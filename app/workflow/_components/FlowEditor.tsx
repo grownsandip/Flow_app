@@ -3,20 +3,24 @@
 import { CreateFlowNode } from "@/lib/workflow/createFlowNode";
 import { TaskType } from "@/types/task";
 import { Workflow } from "@prisma/client";
-import { Background, BackgroundVariant, Controls, ReactFlow, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
+import { addEdge, Background, BackgroundVariant, Connection, Controls, Edge, ReactFlow, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
-import NodeComponent from "./nodes/nodeComponent";
-import { useEffect } from "react";
+import NodeComponent from "./nodes/NodeComponent";
+import { useCallback, useEffect } from "react";
+import DeletableEdge from "./edges/DeletableEdge";
 
 const nodeTypes={
     flowNode:NodeComponent,
 };
+const edgeTypes={
+    default:DeletableEdge, //default edge will be delatable
+}
 const snapGrid:[number,number]=[50,50]; //this helps in grid like rough movement of nodes rather than smooth
 const fitViewoptions={padding:1}
 const FlowEditor = ({workflow}:{workflow:Workflow}) => {
     const [nodes,setNodes,onNodesChange]=useNodesState([CreateFlowNode(TaskType.LAUNCH_BROWSER)]);
-    const [edges,setEdges,onEdgesChange]=useEdgesState([]);
-    const {setViewport}=useReactFlow();
+    const [edges,setEdges,onEdgesChange]=useEdgesState<Edge>([]);
+    const {setViewport,screenToFlowPosition}=useReactFlow();
     useEffect(()=>{
         try {
             const flow=JSON.parse(workflow.definition);
@@ -30,10 +34,30 @@ const FlowEditor = ({workflow}:{workflow:Workflow}) => {
             
         }
     },[workflow.definition,setEdges,setNodes,setViewport]);
+    const onDragOver=useCallback((event:React.DragEvent)=>{
+        event.preventDefault();
+        event.dataTransfer.dropEffect="move";
+    },[])
+    const onDrop=useCallback((event:React.DragEvent)=>{
+        event.preventDefault();
+        const taskType=event.dataTransfer.getData("application/reactflow");
+        if(typeof taskType===undefined || !taskType) return;
+        const position=screenToFlowPosition({
+            x:event.clientX,
+            y:event.clientY,
+        })
+        const newNode=CreateFlowNode(taskType as TaskType,position);
+        setNodes(nds=>nds.concat(newNode))
+    },[])
+    const onConnect=useCallback((connection:Connection)=>{
+        // console.log("@connection",connection)
+        setEdges((eds)=>addEdge({...connection,animated:true},eds))
+    },[])
   return (
     <main className="h-full w-full">
         <ReactFlow nodes={nodes} edges={edges} onEdgesChange={onEdgesChange} onNodesChange={onNodesChange} 
-        nodeTypes={nodeTypes} snapGrid={snapGrid} snapToGrid fitView fitViewOptions={fitViewoptions}>
+        nodeTypes={nodeTypes} snapGrid={snapGrid} snapToGrid fitView fitViewOptions={fitViewoptions} onDragOver={onDragOver} 
+        onDrop={onDrop} onConnect={onConnect} edgeTypes={edgeTypes}>
             <Controls position="top-left" fitViewOptions={fitViewoptions}/>
             <Background variant={BackgroundVariant.Dots} gap={12} size={1}/>
         </ReactFlow>
