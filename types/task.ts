@@ -13,6 +13,7 @@ export interface TaskParam{
     type:TaskParamType;
     helperText?:string;
     required?:boolean;
+    value?:string;
     hideHandle?:boolean;
     [key:string]:any;
 }
