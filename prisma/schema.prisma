@@ -16,6 +16,9 @@ datasource db {
   description String?
   definition String
   status String
+  lastRunAt DateTime?
+  lastRunId String?
+  lastRunStatus String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   executions WorkflowExecution[]
@@ -31,6 +34,7 @@ datasource db {
   createdAt DateTime @default(now())
   startedAt DateTime?
   completedAt DateTime?
+  creditsConsumed Int @default(0)
   phases ExecutionPhase[]
   workflow Workflow @relation(fields:[workflowId],references:[id],onDelete:Cascade)
  }

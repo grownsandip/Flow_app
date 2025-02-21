@@ -1,6 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma";
+import { ExecuteWorkflow } from "@/lib/workflow/executeWorkflow";
 import { FlowToExecutionPlan } from "@/lib/workflow/executionPlan";
 import { TaskRegistry } from "@/lib/workflow/task/registry";
 import { ExecutionPhaseStatus, WorkflowExecutionPlan, WorkflowExecutionStatus, WorkflowExecutionTrigger } from "@/types/workflow";
@@ -41,7 +42,7 @@ export async function RunWorkflow(form:{
     throw new Error("No execution plan generated")
   }
   executionPlan=result.executionPlan;
-  const execution= await prisma.WorkflowExecution.create({
+  const execution= await prisma.workflowExecution.create({
     data:{
         workflowId,
         userId,
@@ -70,5 +71,6 @@ export async function RunWorkflow(form:{
   if(!execution){
     throw new Error("Workflow execution not created")
   }
+  ExecuteWorkflow(execution.id);
   redirect(`/workflow/runs/${workflowId}/${execution.id}`)
 }
