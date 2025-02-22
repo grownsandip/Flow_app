@@ -34,6 +34,7 @@ datasource db {
   createdAt DateTime @default(now())
   startedAt DateTime?
   completedAt DateTime?
+  definition String @default("{}")
   creditsConsumed Int @default(0)
   phases ExecutionPhase[]
   workflow Workflow @relation(fields:[workflowId],references:[id],onDelete:Cascade)
