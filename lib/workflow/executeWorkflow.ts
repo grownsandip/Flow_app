@@ -37,7 +37,8 @@ export async function ExecuteWorkflow(executionId:string){
   let executionFailed=false;
   for(const phase of execution.phases){
     //TODO:creditsConsumed
-    const phaseExecution=await executeWorkflowPhase(phase,environment,edges)
+    const phaseExecution=await executeWorkflowPhase(phase,environment,edges,execution.userId);
+    creditsConsumed+=phaseExecution.creditsConsumed;
     if(!phaseExecution.success){
       executionFailed=true;
       break;
@@ -107,7 +108,7 @@ async function finalizeWorkflowExecution(executionId:string,workflowId:string,ex
     //this means we have triggered other runs for this workflow while an execution was running
    })
 }
-async function executeWorkflowPhase(phase:ExecutionPhase,environment:Environment,edges:Edge[]){
+async function executeWorkflowPhase(phase:ExecutionPhase,environment:Environment,edges:Edge[],userId:string){
   const startedAt=new Date();
   const LogCollector=createLogCollector();
   const node=JSON.parse(phase.node) as AppNode;
@@ -124,15 +125,18 @@ async function executeWorkflowPhase(phase:ExecutionPhase,environment:Environment
     }
   });
   const creditsRequired=TaskRegistry[node.data.type].credits;
-  console.log(`executing phase ${phase.name} with ${creditsRequired} credits required`)
 
   //TODO decrement user balance from required credits
-  const success= await executePhase(phase,node,environment,LogCollector);
+  let success=await decrementCredits(userId,creditsRequired,LogCollector);
+  const creditsConsumed=success?creditsRequired:0;
+  if(success){
+     success= await executePhase(phase,node,environment,LogCollector);
+  }
   const outputs=environment.phases[node.id].outputs;
-  await finalizePhase(phase.id,success,outputs,LogCollector);
-  return {success}
+  await finalizePhase(phase.id,success,outputs,LogCollector,creditsConsumed);
+  return {success,creditsConsumed}
 }
-async function finalizePhase(phaseId:string,success:boolean,outputs:any,LogCollector:LogCollector){
+async function finalizePhase(phaseId:string,success:boolean,outputs:any,LogCollector:LogCollector,creditsConsumed:number){
   const finalStatus=success?ExecutionPhaseStatus.COMPLETED:ExecutionPhaseStatus.FAILED;
   await prisma.executionPhase.update({
     where:{
@@ -142,6 +146,7 @@ async function finalizePhase(phaseId:string,success:boolean,outputs:any,LogColle
       status:finalStatus,
       completedAt:new Date(),
       outputs:JSON.stringify(outputs),
+      creditsConsumed,
       logs:{
         createMany:{
           data:LogCollector.getAll().map(log=>({
@@ -155,6 +160,7 @@ async function finalizePhase(phaseId:string,success:boolean,outputs:any,LogColle
   })
 }
 async function executePhase(phase:ExecutionPhase,node:AppNode,environment:Environment,LogCollector:LogCollector):Promise<boolean>{
+  await waitFor(3000) //remove this after testing
   const runFn=ExecutorRegistry[node.data.type];
   if(!runFn){
     return false;
@@ -199,6 +205,27 @@ function createExecutionEnvironment(node:AppNode, environment:Environment,logCol
 async function cleanupEnvironment(environment:Environment){
   if(environment.browser){
     await environment.browser.close().catch(error=>console.error("cannot close browser,reason:",error));
+  }
+
+}
+async function decrementCredits(userId:string,amount:number,logCollector:LogCollector){
+  try{
+   await prisma.userBalance.update({
+    where:{
+      userId,
+      credits:{gte:amount},
+    },
+    data:{
+      credits:{
+        decrement:amount,
+      },
+    },
+   });
+   return true;
+  }catch(error){
+  console.error(error)
+  logCollector.error("Insufficiant balance")
+   return false;
   }
 
 }
