@@ -6,15 +6,17 @@ export async function LaunchBrowserExecutor(environment:ExecutorEnvironment<type
     try{
         const websiteUrl=environment.getInput("Website URL");
         const browser=await puppeteer.launch({
-        headless:false,//this true means everything happens in the background
-    })
+        headless:true,//this true means everything happens in the background
+    });
+    environment.log.info("Browser started successfully")
     environment.setBrowser(browser);
     const page=await browser.newPage();
     await page.goto(websiteUrl);
     environment.setPage(page);//for multiple pages we can create a loop and iterate
+    environment.log.info(`Opened page at ${websiteUrl}`)
     return true;
-   }catch(err){
-    console.log(err)
+   }catch(err:any){
+    environment.log.error(err.message);
     return false;
    }
 }

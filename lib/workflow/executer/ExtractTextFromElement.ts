@@ -6,29 +6,29 @@ export async function ExtractTextFromElementExecutor(environment:ExecutorEnviron
     try{
     const selector=environment.getInput("Selector");
     if(!selector){
-        console.error("selector not defined")
+        environment.log.error("selector not defined");
         return false
     };
     const html =environment.getInput("Html");
     if(!html){
-        console.error("html not defined")
+        environment.log.error("html not defined");
         return false
     }
     const $=cheerio.load(html)
     const element=$(selector)
     if(!element){
-        console.log("element not found")
+        environment.log.error("element not defined");
         return false;
     }
     const extractedText=$.text(element)
     if(!extractedText){
-        console.error("element not defined")
+        environment.log.error("Extracted text not defined");
         return false;
     }
     environment.setOutput("Extracted Text",extractedText)
     return true;
-   }catch(err){
-    console.log(err)
+   }catch(err:any){
+    environment.log.error(err.message);
     return false;
    }
 }
