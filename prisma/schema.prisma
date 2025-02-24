@@ -16,6 +16,8 @@ datasource db {
   description String?
   definition String
   status String
+  executionPlan String?
+  creditsCost Int @default(0)
   lastRunAt DateTime?
   lastRunId String?
   lastRunStatus String?
@@ -27,7 +29,7 @@ datasource db {
  }
  model WorkflowExecution {
   id String @id @default(cuid())
-  workflowId String
+  workflowId String 
   userId String
   trigger String
   status  String

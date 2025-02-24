@@ -4,8 +4,9 @@ import prisma from "@/lib/prisma";
 import { ExecuteWorkflow } from "@/lib/workflow/executeWorkflow";
 import { FlowToExecutionPlan } from "@/lib/workflow/executionPlan";
 import { TaskRegistry } from "@/lib/workflow/task/registry";
-import { ExecutionPhaseStatus, WorkflowExecutionPlan, WorkflowExecutionStatus, WorkflowExecutionTrigger } from "@/types/workflow";
+import { ExecutionPhaseStatus, WorkflowExecutionPlan, WorkflowExecutionStatus, WorkflowExecutionTrigger, WorkflowStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
+import { WorkflowIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export async function RunWorkflow(form:{
@@ -20,28 +21,35 @@ export async function RunWorkflow(form:{
     if(!workflowId){
         throw new Error("Worflow id is required");
     }
-  const worflow=await prisma.workflow.findUnique({
+  const workflow=await prisma.workflow.findUnique({
     where:{
         userId,
         id:workflowId,
     },
   });
-  if(!worflow){
+  if(!workflow){
     throw new Error("workflow not found")
   }
   let executionPlan:WorkflowExecutionPlan;
-  if(!flowDefiniton){
-    throw new Error("flow definition is not defined");
+  if(workflow.status===WorkflowStatus.PUBLISHED){
+    if(!workflow.executionPlan){
+      throw new Error("No execution plan found in published workflow")
+    }
+    executionPlan=JSON.parse(workflow.executionPlan)
+  }else{
+    if(!flowDefiniton){
+      throw new Error("flow definition is not defined");
+    }
+    const flow=JSON.parse(flowDefiniton);
+    const result=FlowToExecutionPlan(flow.nodes,flow.edges);
+    if(result.error){
+      throw new Error("Flow definition not valid");
+    }
+    if(!result.executionPlan){
+      throw new Error("No execution plan generated")
+    }
+    executionPlan=result.executionPlan;
   }
-  const flow=JSON.parse(flowDefiniton);
-  const result=FlowToExecutionPlan(flow.nodes,flow.edges);
-  if(result.error){
-    throw new Error("Flow definition not valid");
-  }
-  if(!result.executionPlan){
-    throw new Error("No execution plan generated")
-  }
-  executionPlan=result.executionPlan;
   const execution= await prisma.workflowExecution.create({
     data:{
         workflowId,
