@@ -4,19 +4,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { WorkflowStatus } from '@/types/workflow';
 import { Workflow } from '@prisma/client';
-import { FileTextIcon, MoreVerticalIcon, PlayIcon, ShuffleIcon, Trash2Icon, TrashIcon } from 'lucide-react';
+import { CoinsIcon, CornerDownRight, FileTextIcon, MoreVerticalIcon, MoveRightIcon, PlayIcon, ShuffleIcon, Trash2Icon, TrashIcon } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import TooltipWrapper from '@/components/TooltipWrapper';
 import { DeleteWorkflowDialog } from './DeleteWorkflowDialog';
 import RunBtn from './RunBtn';
+import SchedularDialog from './SchedularDialog';
+import { Badge } from '@/components/ui/badge';
 
 const statusColors = {
   [WorkflowStatus.DRAFT]: "bg-yellow-400 text-yellow-600",
   [WorkflowStatus.PUBLISHED]: "bg-primary",
 }
-const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
+const WorkflowCard = ({ workflow}: { workflow: Workflow;}) => {
   const isDraft = workflow.status === WorkflowStatus.DRAFT;
   return (
     <Card className='border border-separate shadow-sm rounded-lg overflow-hidden hover:shadow-md dark:shadow-primary/30'>
@@ -34,6 +36,7 @@ const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
                 isDraft && (<span className='ml-2 px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full'>Draft</span>)
               }
             </h3>
+            <ScheduleSection isDraft={isDraft} creditsCost={workflow.creditsCost} workflowId={workflow.id} cron={workflow.cron}/>
           </div>
         </div>
         <div className='flex items-center space-x-2'>
@@ -74,3 +77,21 @@ function WorkflowActions({workflowName,workflowId}:{workflowName:string;workflow
   </>
 }
 export default WorkflowCard
+function ScheduleSection({isDraft,creditsCost,workflowId,cron}:{isDraft:boolean;creditsCost:number;workflowId:string;cron:string|null}){
+  if(isDraft)return null;
+  return (
+    <div className='flex items-center gap-2'>
+  <CornerDownRight className='h-4 w-4 text-muted-foreground'/>
+  <SchedularDialog workflowId={workflowId} cron={cron}/>
+  <MoveRightIcon className='h-4 w-4 text-muted-foreground'/>
+  <TooltipWrapper content="credits for full run">
+    <div className='flex items-center gap-3'>
+      <Badge variant={"outline"} className='space-x-2 text-muted-foreground rounded-sm'>
+        <CoinsIcon className='h-4 w-4'/>
+        <span>{creditsCost}</span>
+      </Badge>
+    </div>
+  </TooltipWrapper>
+  </div>
+  )
+}
