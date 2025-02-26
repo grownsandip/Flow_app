@@ -82,7 +82,7 @@ function ScheduleSection({isDraft,creditsCost,workflowId,cron}:{isDraft:boolean;
   return (
     <div className='flex items-center gap-2'>
   <CornerDownRight className='h-4 w-4 text-muted-foreground'/>
-  <SchedularDialog workflowId={workflowId} cron={cron}/>
+  <SchedularDialog workflowId={workflowId} cron={cron} key={`${cron}-${workflowId}`}/>
   <MoveRightIcon className='h-4 w-4 text-muted-foreground'/>
   <TooltipWrapper content="credits for full run">
     <div className='flex items-center gap-3'>
