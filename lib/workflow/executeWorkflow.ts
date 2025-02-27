@@ -164,6 +164,7 @@ async function executePhase(phase:ExecutionPhase,node:AppNode,environment:Enviro
   await waitFor(3000) //remove this after testing
   const runFn=ExecutorRegistry[node.data.type];
   if(!runFn){
+    LogCollector.error(`not found executor for ${node.data.type}`)
     return false;
   }
   const executionEnvironment:ExecutorEnvironment<any>=createExecutionEnvironment(node,environment,LogCollector);

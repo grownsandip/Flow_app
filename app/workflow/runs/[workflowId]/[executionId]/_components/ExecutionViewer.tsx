@@ -23,16 +23,16 @@ import ReactCountUpWrapper from '@/components/ReactCountUpWrapper';
 type ExecutionData= Awaited<ReturnType<typeof GetWorkflowExecutionWithPhases>>;
 const ExecutionViewer = ({initialData,}:{initialData:ExecutionData}) => {
     const [selectedPhase,setSelectedPahse]=useState<string | null>(null);
-    const phaseDetails=useQuery({
-        queryKey:["phaseDetails",selectedPhase],
-        enabled:selectedPhase!==null,
-        queryFn:()=>GetWorkflowPhaseDetails(selectedPhase!),
-    })
     const query=useQuery({
         queryKey:["execution",initialData?.id],
         initialData,
         queryFn:()=>GetWorkflowExecutionWithPhases(initialData!.id),
         refetchInterval:(q)=>q.state.data?.status === WorkflowExecutionStatus.RUNNING?1000:false //if execution is running we are going to fetch data every second otherwise disable fetching
+    })
+    const phaseDetails=useQuery({
+        queryKey:["phaseDetails",selectedPhase,query.data?.status],
+        enabled:selectedPhase!==null,
+        queryFn:()=>GetWorkflowPhaseDetails(selectedPhase!),
     })
     const duration=DatesToDurationString(query.data?.startedAt,query.data?.completedAt);
     const isRunning=query.data?.status===WorkflowExecutionStatus.RUNNING;
