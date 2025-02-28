@@ -161,7 +161,7 @@ async function finalizePhase(phaseId:string,success:boolean,outputs:any,LogColle
   })
 }
 async function executePhase(phase:ExecutionPhase,node:AppNode,environment:Environment,LogCollector:LogCollector):Promise<boolean>{
-  await waitFor(3000) //remove this after testing
+ // await waitFor(3000) //remove this after testing
   const runFn=ExecutorRegistry[node.data.type];
   if(!runFn){
     LogCollector.error(`not found executor for ${node.data.type}`)
