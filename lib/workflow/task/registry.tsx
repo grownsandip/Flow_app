@@ -11,6 +11,7 @@ import { ExtractDataWithAITask } from "./ExtractDataWithAi";
 import { ReadPropertyFromJsonTask } from "./ReadPropertyFromJson";
 import { AddPropertyToJsonTask } from "./AddPropertyToJson";
 import { NavigateUrlTask } from "./NavigateUrl";
+import { ScrollElementTask } from "./ScrollElement";
 
 
 type Registry={
@@ -28,4 +29,5 @@ export const TaskRegistry:Registry={
     READ_PROPERTY_FROM_JSON:ReadPropertyFromJsonTask,
     ADD_PROPERTY_TO_JSON:AddPropertyToJsonTask,
     NAVIGATE_URL:NavigateUrlTask,
+    SCROLL_ELEMENT:ScrollElementTask,
 }
