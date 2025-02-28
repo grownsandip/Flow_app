@@ -14,6 +14,7 @@ const TaskMenu = () => {
               <AccordionContent className='flex flex-col gap-1'>
                 <TaskMenuBtn taskType={TaskType.FILL_INPUT}/>
                 <TaskMenuBtn taskType={TaskType.CLICK_ELEMENT}/>
+                <TaskMenuBtn taskType={TaskType.NAVIGATE_URL}/>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value='extraction'>
