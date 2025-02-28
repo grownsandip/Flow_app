@@ -10,7 +10,7 @@ import UserAvailableCreditsBadge from './UserAvailableCreditsBadge'
 
 const Routes = [
     {
-        href: "/",
+        href: "",
         label: "Home",
         icons: HomeIcon,
     },
@@ -41,7 +41,7 @@ const DesktopSidebar = () => {
             <div className='flex flex-col p-2'>
                 {
                     Routes.map(route => (
-                        <Link key={route.href} href={route.href} className={buttonVariants({
+                        <Link key={route.href} href={`/${route.href}`} className={buttonVariants({
                             variant: activeRoutes.href === route.href ? "sidebarActiveItem" : "sidebarItem"
                         })}>
                             <route.icons size={20} />
@@ -72,7 +72,7 @@ export const MobileSidebar = () => {
                         <div className='flex flex-col gap-1'>
                             {
                                 Routes.map(route => (
-                                    <Link key={route.href} href={route.href} className={buttonVariants({
+                                    <Link key={route.href} href={`/${route.href}`} className={buttonVariants({
                                         variant: activeRoutes.href === route.href ? "sidebarActiveItem" : "sidebarItem"
                                     })}>
                                         <route.icons size={20} onClick={()=>(setOpen(prev=>!prev))} />
