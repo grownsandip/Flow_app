@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## 🚀 Project Setup
 
-## Getting Started
+### 1️⃣ Clone the Repository
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+git clone <your-repository-url>
+cd Flow_App
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2️⃣ Install Dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### 3️⃣ Create a Clerk Account
 
-## Learn More
+- **Register** at [Clerk.dev](https://clerk.dev/).
+- **Create a new app** in the Clerk dashboard.
+- **Copy** the **Secret Key** and **Publishable Key**.
 
-To learn more about Next.js, take a look at the following resources:
+### 4️⃣ Configure Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a `.env.local` file in the project's root directory and add the following:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```ini
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key
+CLERK_SECRET_KEY=your_secret_key
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_APP_URL=http://localhost:3000 (change this to your platform url incase of deployment)
+NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/setup
+API_SECRET_KEY=your_32_bit_hexadecimal_hash
+ENCRYPTION_KEY=your_32_bit_hexadecimal_hash
+```
 
-## Deploy on Vercel
+**Note:** Generate `API_SECRET_KEY` & `ENCRYPTION_KEY` using:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sh
+openssl rand -hex 32  # (for Linux/macOS)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### 5️⃣ Setup Database (SQLite3)
+
+1. Install SQLite3:
+   ```sh
+   npm install sqlite3
+   ```
+2. Create a `.env` file and configure the database:
+   ```ini
+   DATABASE_URL="file:./prisma/Flow_App.db"
+   ```
+### 6 Setup AI data fetching (LLM)
+1. Launch the app navigate to crdentials create a new credential and enter your openAi api key
+
+
+## 🎬 Demo Video
+
+[Watch the Demo](your-video-link)
+
+---
+
+## 🎯 Features
+
+✅ User Authentication with Clerk\
+✅ Secure API with Encryption\
+✅ SQLite3 Database Integration\
+✅ Responsive UI
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+
+🚀 Happy Coding! 🎉
+
